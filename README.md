@@ -190,7 +190,7 @@ The ACDC JWT is issued by the IdP `https://acme.idp.cloud` for the requested aud
 Notes:
 
 * `iss` + `aud` pair establishes the tenancy at the Resource Application
-*
+* `sub` should be an opaque ID, `iss`+`sub` is unique. The IdP might want to also include the user's email here, which it should do as a new `email` claim. This would let the app dedupe existing users who may have an account with an email address but have not done SSO yet
 
 
 #### Errors
