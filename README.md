@@ -4,22 +4,22 @@
 
 Enterprises often have hundreds of SaaS applications.  SaaS applications often have integrations to other SaaS applications that are critical to the application experience and jobs to be done.  When a SaaS app needs to request an access token on-behalf of a user to a 3rd party SaaS integration's API, the end-user needs to complete an interactive delegated OAuth 2.0 ceremony and consent.  The SaaS application is not in the same security or policy domain as the 3rd party SaaS integration.
 
-It is industry best practice for an enterprise to connect their ecosystem of SaaS applications to their Identity Provider to centralize identity and access management capabilites for the organization.  End-users get a better experience (SSO) and administrators get better security outcomes such multi-factor authentication and zero-trust.  SaaS applications today enable the administrator to establish trust with an IdP for user authentication but typically don't allow the administrator to trust the IdP for API authorization.  
+It is industry best practice for an enterprise to connect their ecosystem of SaaS applications to their Identity Provider (IdP) to centralize identity and access management capabilites for the organization.  End-users get a better experience (SSO) and administrators get better security outcomes such multi-factor authentication and zero-trust.  SaaS applications today enable the administrator to establish trust with an IdP for user authentication but typically don't allow the administrator to trust the IdP for API authorization.  
 
 The draft specification [Authorization Cross Domain Code 1.0](https://openid.bitbucket.io/draft-acdc-01.html) (ACDC) defines a new JWT-based grant type that can requested from an Authorization Server and exchanged with another Authorization Server for Access and Refresh tokens.  This new grant enables federation for Authorization Servers across policy or administrative boundaries. The same enterprise IdP for example that is trusted by applications for SSO can be extended to broker access to APIs.  This enables the enteprise to centralize more access decisions across their SaaS ecosystem and provides better end-user experience for users that need to connect multiple applications via OAuth 2.0.
 
-Extending support for the Authorization Cross-Domain Code (ACDC) grant to [Token Exchange] (https://datatracker.ietf.org/doc/html/rfc8693) requests enables applications to request access to 3rd party applications using backchannel operations that don't interupt the end user's interactive application experience.  Its also valuable for deployments where SSO is SAML based and not using OpenID Connect.
+This specification extends support for the Authorization Cross-Domain Code (ACDC) grant to [Token Exchange] (https://datatracker.ietf.org/doc/html/rfc8693) requests, enabling applications to request access to 3rd party applications using backchannel operations that don't interupt the end user's interactive application experience.  Its also useful for deployments where SSO is SAML based and not using OpenID Connect.
 
 ## Roles
 
 Requesting Application (Client)
-: Application that wants to obtain an OAuth 2.0 access token on behalf of a signed-in user to an external/3rd party application's API that is managed by the same enterprise.
+: Application that wants to obtain an OAuth 2.0 access token on behalf of a signed-in user to an external/3rd party application's API that is managed by the same enterprise IdP.
 
 Resource Application (Resource)
-: Application that provides an OAuth 2.0 Protected Resource that is used across and enterprise's SaaS ecocystem
+: Application that provides an OAuth 2.0 Protected Resource that is used across and enterprise's SaaS ecosystem.
 
 Identity Provider (IdP)
-: Organization's Identity Provider that is trusted by a set of applications in an enteprise's app ecosystem for IAM
+: Organization's Identity Provider that is trusted by a set of applications in an enteprise's app ecosystem for identity and access management.
 
 
 
@@ -35,9 +35,9 @@ The example flow is for an enterprise `acme`
 | Identity Provider      | `https//idp.cloud`   | `https://acme.idp.cloud` | Cloud Identity Provider |
 
 
-1. SSO user with Enterprise IdP (SAML or OIDC)
-2. Request Authorization Cross-Domain Code (ACDC) for 3rd Party SaaS API
-4. Exchange Authorization Cross-Domain Code (ACDC) for 3rd Party SaaS API Access Token
+1. User logs in to the Requesting Application via SSO with the Enterprise IdP (SAML or OIDC)
+2. Requesting Application requests an Authorization Cross-Domain Code (ACDC) for the Resource Application from the IdP
+3. Requesting Application exchange the Authorization Cross-Domain Code (ACDC) for an access token at the Resource Application's token endpoint
 
 
 
@@ -47,11 +47,11 @@ The example flow is for an enterprise `acme`
 - Requesting Application has a registered OAuth 2.0 Client with the Resource Application
 - Enterprise has established a trust relationship between their IdP and the Requesting Application for SSO and Cross-Application Authorization
 - Enterprise has established a trust relationship between their IdP and the Resource Application for SSO and Cross-Application Authorization
-- Enterprise has granted the Requesting Application to act on-half of users for the Resource Application with a set of scopes
+- Enterprise has granted the Requesting Application to act on-behalf of users for the Resource Application with a set of scopes
 
-### Contraints
+### Constraints
 
-Token Exchange *should* only be supported for confidential clients.  Public clients *must* redirect with an OAuth 2.0 Authorization Request
+Token Exchange *should* only be supported for confidential clients.  Public clients *must* redirect with an OAuth 2.0 Authorization Request.
 
 ### SSO user with Enterprise IdP (SAML or OIDC)
 
@@ -119,13 +119,14 @@ SAMLResponse={AuthnResponse}&RelayState=DyXvaJtZ1BqsURRC
 </saml:Assertion>
 ```  
 
-### Request Authorization Cross-Domain Code (ACDC) for 3rd Party SaaS API from IdP
+### Request Authorization Cross-Domain Code (ACDC) for Resource Application from the IdP
 
-Requesting Application makes a [RFC 8693 Token Exchange](https://datatracker.ietf.org/doc/html/rfc8693) request to the IdP's Authorization Server
-  - Asks for `urn:ietf:params:oauth:grant-type:jwt-acdc` as the `requested_token_type` 
-  - Specifies the target SaaS API the app wants to connect with as the `audience` and the desired `scope`(s)
-  - Specifies the target subject for the token request by passing the user's SSO assertion as the `subject_token` and provoding the `subject_token_type` for SAML2 Assertion `urn:ietf:params:oauth:token-type:saml2` or OpenID Connect ID Token `urn:ietf:params:oauth:token-type:id_token`
-  - Provides client credentials to authenticate the Requesting Application (example uses the more secure `private_key_jwt` method)
+Requesting Application makes a [RFC 8693 Token Exchange](https://datatracker.ietf.org/doc/html/rfc8693) request to the IdP's Token Endpoint
+  - `requested_token_type=urn:ietf:params:oauth:grant-type:jwt-acdc` 
+  - Specifies the target Resource Application that the app wants to connect with as the `audience` and the desired `scope`(s)
+  - Specifies the target subject for the token request by passing the user's SSO assertion as the `subject_token`
+  - Provides the `subject_token_type` for SAML2 Assertion as `urn:ietf:params:oauth:token-type:saml2` or OpenID Connect ID Token `urn:ietf:params:oauth:token-type:id_token`
+  - Provides client authentication to the Requesting Application (the example below uses the more secure `private_key_jwt` method)
 
 ```http
 POST /oauth2/token HTTP/1.1
@@ -142,7 +143,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 &client_assertion=eyJhbGciOiJSUzI1NiIsImtpZCI6IjIyIn0.
 ```
 
-IdP evaluates administrator-defined policy for the token exchange request and determines if the application (client) should be granted access to act on behalf of the subject for the target audience & scopes.  
+The IdP evaluates administrator-defined policy for the token exchange request and determines if the application (client) should be granted access to act on behalf of the subject for the target audience & scopes.  
 
 IdP may also introspect the authentication context described in the SSO assertion to determine if step-up authentication is required.
 
@@ -150,25 +151,33 @@ If access is granted, the IdP will return a signed Authorization Cross-Domain Co
 
 ```
 HTTP/1.1 200 OK
-Content-Type: application/json;charset=UTF-8
+Content-Type: application/json
 Cache-Control: no-store
 Pragma: no-cache
 
 {
-  "acdc":"eyJhbGciOiJIUzI1NiIsI...",
-  "token_type":"urn:ietf:params:oauth:grant-type:jwt-acdc"
+  "acdc": "eyJhbGciOiJIUzI1NiIsI...",
+  "token_type": "urn:ietf:params:oauth:grant-type:jwt-acdc"
 }
 ```
 
 #### Authorization Cross-Domain Code JWT
 
-The ACDC JWT is issued by the IdP `https://acme.idp.cloud` for the requested audience `https://acme.chat.app`.
+The ACDC JWT is issued by the IdP `https://acme.idp.cloud` for the requested audience `https://acme.chat.app` and includes the following claims:
+
+* `iss` - The IdP `issuer` URL
+* `sub` - 
+* `azp` - Client ID of the Requesting Application as registered with the IdP
+* `aud` - 
+* `exp` - 
+* `iat` -
+* `scopes` - Array of scopes at the Resource Application granted to the Requesting Application
 
 ```
 {
   "iss": "https://acme.idp.cloud",
   "sub": "karl@acme.com",
-  "azp": "Admin-defined Client-ID",
+  "azp": "CLIENT-ID",
   "aud": "https://acme.chat.app",
   "exp": 1311281970,
   "iat": 1311280970,
@@ -178,6 +187,7 @@ The ACDC JWT is issued by the IdP `https://acme.idp.cloud` for the requested aud
 
 #### Errors
 
+On an error condition, the IdP returns an OAuth 2.0 Token Error response, e.g:
 
 ```
 HTTP/1.1 400 Bad Request
@@ -185,10 +195,12 @@ Content-Type: application/json
 Cache-Control: no-store
 
 {
-  "error":"invalid_grant",
-  "error_description":"Audience validation failed"
+  "error": "invalid_grant",
+  "error_description": "Audience validation failed"
 }
 ```
+
+
 
 ### Step-Up Authentication
 
@@ -212,17 +224,23 @@ The Requesting Application would need to redirect the user back to the IdP to ob
 
 ## Exchange Authorization Cross-Domain Code for 3rd Party SaaS API Access Token
 
-The Requesting Application 
+The Requesting Application makes a request to the Resource Application's token endpoint, including the following parameters:
+
+* `grant_type=urn:ietf:params:oauth:grant-type:jwt-acdc`
+* `acdc` - The ACDC obtained in the previous step
+* Client Authentication - the client authenticates with its credentials as registered with the Resource Application
+
 
 ```
 POST /oauth2/token HTTP/1.1
 Host: acme.chat.app
 Authorization: Basic yZS1yYW5kb20tc2VjcmV0v3JOkF0XG5Qx2
 
-
 grant_type=urn:ietf:params:oauth:grant-type:jwt-acdc
 acdc=eyJhbGciOiJIUzI1NiIsI...
 ```
+
+The Resource Application token endpoint responds with an OAuth 2.0 Token Response, e.g.:
 
 ```
 HTTP/1.1 200 OK
@@ -231,9 +249,10 @@ Cache-Control: no-store
 Pragma: no-cache
 
 {
-  "access_token":"2YotnFZFEjr1zCsicMWpAA",
-  "token_type":"bearer",
-  "refresh_token":"tGzv3JOkF0XG5Qx2TlKWIA",
+  "token_type": "Bearer",
+  "access_token": "2YotnFZFEjr1zCsicMWpAA",
+  "expires_in": 86400,
+  "refresh_token": "tGzv3JOkF0XG5Qx2TlKWIA",
 }
 ```
 
@@ -244,3 +263,5 @@ Pragma: no-cache
 TBD
 
 [RFC7523](https://www.rfc-editor.org/rfc/rfc7523.html) defines the use of a JSON Web Token (JWT) Bearer Token as a means for requesting an OAuth 2.0 access token.  
+
+
