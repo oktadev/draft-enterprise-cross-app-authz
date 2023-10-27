@@ -168,9 +168,9 @@ Pragma: no-cache
 The ACDC JWT is issued by the IdP `https://acme.idp.cloud` for the requested audience `https://acme.chat.app` and includes the following claims:
 
 * `iss` - The IdP `issuer` URL
-* `sub` - 
-* `azp` - Client ID of the Requesting Application as registered with the IdP
-* `aud` - Client ID of the Resource Application as registered with the Requesting Application
+* `sub` - The User ID at the IdP
+* `azp` - Client ID of the Requesting Application as registered with the Resource Application
+* `aud` - Client ID of the Resource Application as registered with the IdP
 * `exp` - 
 * `iat` -
 * `scopes` - Array of scopes at the Resource Application granted to the Requesting Application
@@ -179,7 +179,7 @@ The ACDC JWT is issued by the IdP `https://acme.idp.cloud` for the requested aud
 {
   "iss": "https://acme.idp.cloud",
   "sub": "karl@acme.com",
-  "azp": "CLIENT-ID",
+  "azp": "https://acme.wiki.app",
   "aud": "https://acme.chat.app",
   "exp": 1311281970,
   "iat": 1311280970,
