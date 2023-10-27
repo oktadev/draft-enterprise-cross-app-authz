@@ -124,7 +124,7 @@ SAMLResponse={AuthnResponse}&RelayState=DyXvaJtZ1BqsURRC
 Requesting Application makes a [RFC 8693 Token Exchange](https://datatracker.ietf.org/doc/html/rfc8693) request to the IdP's Token Endpoint
 
 * `requested_token_type=urn:ietf:params:oauth:grant-type:jwt-acdc` 
-* `audience` - Specifies the Client ID of the Resource Application that the Requesting App wants to get access to (The Client ID is as registered by the Resource Application at the Requesting Application). Note: The IdP will need to store a mapping between its own Client ID of the Resource Application and the Client ID that the Requesting Application uses at the Resource Application.
+* `audience` - Specifies the Client ID of the Resource Application that the Requesting App wants to get access to (The Client ID is as registered by the Requesting Application at the Resource Application). Note: The IdP will need to store a mapping between its own Client ID of the Resource Application and the Client ID that the Requesting Application uses at the Resource Application.
 * `scope` - The space-separated list of scopes at the Resource Application to include in the token
 * `subject_token` - The SSO assertion (SAML or OpenID Connect ID Token) for the target end-user
 * `subject_token_type` - For SAML2 Assertion: `urn:ietf:params:oauth:token-type:saml2`, or OpenID Connect ID Token: `urn:ietf:params:oauth:token-type:id_token`
@@ -169,8 +169,8 @@ The ACDC JWT is issued by the IdP `https://acme.idp.cloud` for the requested aud
 
 * `iss` - The IdP `issuer` URL
 * `sub` - The User ID at the IdP
-* `azp` - Client ID of the Requesting Application as registered with the Resource Application
 * `aud` - Client ID of the Resource Application as registered with the IdP
+* `azp` - Client ID of the Requesting Application as registered with the Resource Application
 * `exp` - 
 * `iat` -
 * `scopes` - Array of scopes at the Resource Application granted to the Requesting Application
@@ -178,14 +178,20 @@ The ACDC JWT is issued by the IdP `https://acme.idp.cloud` for the requested aud
 ```
 {
   "iss": "https://acme.idp.cloud",
-  "sub": "karl@acme.com",
-  "azp": "https://acme.wiki.app",
-  "aud": "https://acme.chat.app",
+  "sub": "U019488227",
+  "aud": "C256626436",
+  "azp": "f53f191f9311af35",
   "exp": 1311281970,
   "iat": 1311280970,
   "scopes" : [ "chat.read" , "chat.history" ]
 }
 ```
+
+Notes:
+
+* `iss` + `aud` pair establishes the tenancy at the Resource Application
+*
+
 
 #### Errors
 
