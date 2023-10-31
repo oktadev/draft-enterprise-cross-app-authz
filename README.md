@@ -159,7 +159,7 @@ Pragma: no-cache
 
 {
   "acdc": "eyJhbGciOiJIUzI1NiIsI...",
-  "token_type": "urn:ietf:params:oauth:grant-type:jwt-acdc"
+  "token_type": "urn:ietf:params:oauth:token-type:jwt-acdc"
 }
 ```
 
