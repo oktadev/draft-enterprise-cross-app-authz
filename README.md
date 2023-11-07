@@ -171,7 +171,8 @@ The ACDC JWT is issued by the IdP `https://acme.idp.cloud` for the requested aud
 
 * `iss` - The IdP `issuer` URL
 * `sub` - The User ID at the IdP
-* `aud` - Client ID of the Resource Application as registered with the IdP
+* `aud` - The token endpoint of the Resource Application (the same value as the `resource` parameter of the ACDC request)
+* `client_id` - Client ID of the Resource Application as registered with the IdP
 * `azp` - Client ID of the Requesting Application as registered with the Resource Application
 * `exp` - 
 * `iat` -
@@ -181,7 +182,8 @@ The ACDC JWT is issued by the IdP `https://acme.idp.cloud` for the requested aud
 {
   "iss": "https://acme.idp.cloud",
   "sub": "U019488227",
-  "aud": "C256626436",
+  "aud": "https://chat.app/token",
+  "client_id": "C256626436",
   "azp": "f53f191f9311af35",
   "exp": 1311281970,
   "iat": 1311280970,
@@ -191,7 +193,7 @@ The ACDC JWT is issued by the IdP `https://acme.idp.cloud` for the requested aud
 
 Notes:
 
-* `iss` + `aud` pair establishes the tenancy at the Resource Application
+* If the IdP is multi-tenant, and uses the same `issuer` for all tenants, the Resource application will already have IdP-specific logic to determine the tenant from OIDC/SAML (e.g. hd in Google) and will need to use that if the IdP also has only one client registration for the Resource application
 * `sub` should be an opaque ID, `iss`+`sub` is unique. The IdP might want to also include the user's email here, which it should do as a new `email` claim. This would let the app dedupe existing users who may have an account with an email address but have not done SSO yet
 
 
