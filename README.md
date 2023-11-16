@@ -186,6 +186,7 @@ The ACDC JWT is issued by the IdP `https://acme.idp.cloud` for the requested aud
 * `exp` - 
 * `iat` -
 * `scopes` - Array of scopes at the Resource Application granted to the Requesting Application
+* `jti` - Unique ID of this JWT
 
 ```
 {
@@ -193,6 +194,7 @@ The ACDC JWT is issued by the IdP `https://acme.idp.cloud` for the requested aud
 }
 .
 {
+  "jti": "9e43f81b64a33f20116179",
   "iss": "https://acme.idp.cloud",
   "sub": "U019488227",
   "aud": "https://acme.chat.app/oauth2/token",
