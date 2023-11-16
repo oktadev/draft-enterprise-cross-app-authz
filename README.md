@@ -123,7 +123,7 @@ SAMLResponse={AuthnResponse}&RelayState=DyXvaJtZ1BqsURRC
 
 Requesting Application makes a [RFC 8693 Token Exchange](https://datatracker.ietf.org/doc/html/rfc8693) request to the IdP's Token Endpoint
 
-* `requested_token_type=urn:ietf:params:oauth:grant-type:jwt-acdc`
+* `requested_token_type=urn:ietf:params:oauth:token-type:jwt-acdc`
 * `resource` - The token endpoint of the Resource Application.
 * `actor` - Specifies the Client ID of the Resource Application that the Requesting App wants to get access to (The Client ID is as registered by the Requesting Application at the Resource Application).
 * `scope` - The space-separated list of scopes at the Resource Application to include in the token
@@ -137,7 +137,7 @@ Host: acme.idp.cloud
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=urn:ietf:params:oauth:grant-type:token-exchange
-&requested_token_type=urn:ietf:params:oauth:grant-type:jwt-acdc 
+&requested_token_type=urn:ietf:params:oauth:token-type:jwt-acdc 
 &resource=https://acme.chat.app/token
 &actor=f53f191f9311af35
 &scope=chat.read+chat.history
