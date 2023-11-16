@@ -162,13 +162,15 @@ Pragma: no-cache
 {
   "access_token": "eyJhbGciOiJIUzI1NiIsI...",
   "issued_token_type": "urn:ietf:params:oauth:token-type:jwt-acdc",
-  "token_type": "N_A"
+  "token_type": "N_A",
+  "scope": "chat.read chat.history"
 }
 ```
 
 * `access_token` - The ACDC. Yes this is not an access token. Token Exchange requires this response for historical reasons.
 * `issued_token_type` - `urn:ietf:params:oauth:token-type:jwt-acdc`
 * `token_type` - `N_A` This is pointless, but Token Exchange requires it.
+* `scope` - The list of scopes granted by the IdP. This may be fewer scopes than the application requested based on various policies in the IdP.
 
 
 #### Authorization Cross-Domain Code JWT
