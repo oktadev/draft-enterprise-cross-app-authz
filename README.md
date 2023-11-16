@@ -125,7 +125,6 @@ Requesting Application makes a [RFC 8693 Token Exchange](https://datatracker.iet
 
 * `requested_token_type=urn:ietf:params:oauth:token-type:jwt-acdc`
 * `resource` - The token endpoint of the Resource Application.
-* `actor` - Specifies the Client ID of the Resource Application that the Requesting App wants to get access to (The Client ID is as registered by the Requesting Application at the Resource Application).
 * `scope` - The space-separated list of scopes at the Resource Application to include in the token
 * `subject_token` - The SSO assertion (SAML or OpenID Connect ID Token) for the target end-user
 * `subject_token_type` - For SAML2 Assertion: `urn:ietf:params:oauth:token-type:saml2`, or OpenID Connect ID Token: `urn:ietf:params:oauth:token-type:id_token`
@@ -145,6 +144,8 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 &client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer
 &client_assertion=eyJhbGciOiJSUzI1NiIsImtpZCI6IjIyIn0.
 ```
+
+The IdP validates the subject token, and checks that the audience of the subject token matches the `client_id` of the client authentication of the request.
 
 The IdP evaluates administrator-defined policy for the token exchange request and determines if the application (client) should be granted access to act on behalf of the subject for the target audience & scopes.  
 
@@ -179,7 +180,7 @@ The ACDC JWT is issued by the IdP `https://acme.idp.cloud` for the requested aud
 
 ```
 {
-  "typ": "application/jwt+acdc"
+  "typ": "acdc+jwt"
 }
 .
 {
