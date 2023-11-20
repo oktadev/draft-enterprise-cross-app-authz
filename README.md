@@ -121,7 +121,7 @@ SAMLResponse={AuthnResponse}&RelayState=DyXvaJtZ1BqsURRC
 
 ### Request Authorization Cross-Domain Code (ACDC) for Resource Application from the IdP
 
-Requesting Application makes a [RFC 8693 Token Exchange](https://datatracker.ietf.org/doc/html/rfc8693) request to the IdP's Token Endpoint
+Requesting Application makes a [RFC 8693 Token Exchange](https://datatracker.ietf.org/doc/html/rfc8693) request to the IdP's Token Endpoint with the following parameters:
 
 * `requested_token_type=urn:ietf:params:oauth:token-type:jwt-acdc`
 * `resource` - The token endpoint of the Resource Application.
@@ -145,13 +145,17 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 &client_assertion=eyJhbGciOiJSUzI1NiIsImtpZCI6IjIyIn0.
 ```
 
+#### Processing Rules
+
 The IdP validates the subject token, and checks that the audience of the subject token matches the `client_id` of the client authentication of the request.
 
 The IdP evaluates administrator-defined policy for the token exchange request and determines if the application (client) should be granted access to act on behalf of the subject for the target audience & scopes.  
 
 IdP may also introspect the authentication context described in the SSO assertion to determine if step-up authentication is required.
 
-If access is granted, the IdP will return a signed Authorization Cross-Domain Code JWT
+#### Response
+
+If access is granted, the IdP will return a signed Authorization Cross-Domain Code JWT in the token exchange response defined in Section 2.2 of RFC 8693:
 
 ```
 HTTP/1.1 200 OK
@@ -175,7 +179,7 @@ Pragma: no-cache
 * `expires_in` - The lifetime in seconds of the ACDC.
 
 
-#### Authorization Cross-Domain Code JWT
+### Authorization Cross-Domain Code JWT
 
 The ACDC JWT is issued by the IdP `https://acme.idp.cloud` for the requested audience `https://acme.chat.app` and includes the following claims:
 
@@ -228,26 +232,6 @@ Cache-Control: no-store
 
 
 
-### Step-Up Authentication
-
-The IdP may require step-up authentication for the subject if the authentication context in the subject's assertion does not meet policy requirements. An `insufficient_user_authentication` OAuth error response may be returned to convey the authentication requirements back to the client similar to [OAuth 2.0 Step-up Authentication Challenge Protocol](https://www.ietf.org/archive/id/draft-ietf-oauth-step-up-authn-challenge-17.html)
-
-```
-HTTP/1.1 400 Bad Request
-Content-Type: application/json
-Cache-Control: no-store
-
-{
-  "error":"insufficient_user_authentication",
-  "error_description":"Subject doesn't meet authentication requirements",
-  "max_age: "5"
-}
-```
-The Requesting Application would need to redirect the user back to the IdP to obtain a new assertion that meets the requirements and retry the token exchange.
-
-> It may make more sense to request the ACDC as an additional `response_type` on the authorization request if using OIDC for SSO when performing a step-up to skip the need for additional token exchange round-trip
-
-
 ## Exchange Authorization Cross-Domain Code for 3rd Party SaaS API Access Token
 
 The Requesting Application makes a request to the Resource Application's token endpoint, including the following parameters:
@@ -281,6 +265,27 @@ Pragma: no-cache
   "refresh_token": "tGzv3JOkF0XG5Qx2TlKWIA",
 }
 ```
+
+## Step-Up Authentication
+
+In the initial token exchange request, the IdP may require step-up authentication for the subject if the authentication context in the subject's assertion does not meet policy requirements. An `insufficient_user_authentication` OAuth error response may be returned to convey the authentication requirements back to the client similar to [OAuth 2.0 Step-up Authentication Challenge Protocol](https://www.ietf.org/archive/id/draft-ietf-oauth-step-up-authn-challenge-17.html)
+
+```
+HTTP/1.1 400 Bad Request
+Content-Type: application/json
+Cache-Control: no-store
+
+{
+  "error":"insufficient_user_authentication",
+  "error_description":"Subject doesn't meet authentication requirements",
+  "max_age: "5"
+}
+```
+
+The Requesting Application would need to redirect the user back to the IdP to obtain a new assertion that meets the requirements and retry the token exchange.
+
+> It may make more sense to request the ACDC as an additional `response_type` on the authorization request if using OIDC for SSO when performing a step-up to skip the need for additional token exchange round-trip
+
 
 ## FAQ
 
