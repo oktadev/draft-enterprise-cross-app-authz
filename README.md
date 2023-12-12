@@ -1,3 +1,5 @@
-This spec has moved to:
+This spec has moved!
 
-https://github.com/oktadev/draft-parecki-oauth-cross-domain-authorization
+https://oktadev.github.io/draft-parecki-oauth-cross-domain-authorization/draft-parecki-oauth-cross-domain-authorization.html
+
+Source: https://github.com/oktadev/draft-parecki-oauth-cross-domain-authorization
